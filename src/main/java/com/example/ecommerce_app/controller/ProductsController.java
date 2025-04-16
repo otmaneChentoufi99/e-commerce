@@ -1,14 +1,24 @@
 package com.example.ecommerce_app.controller;
 
+import com.example.ecommerce_app.dao.ProductDAO;
 import com.example.ecommerce_app.model.Product;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+import javafx.util.Callback;
+
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
 
 public class ProductsController {
 
@@ -24,82 +34,187 @@ public class ProductsController {
     @FXML private TextField categoryField;
     @FXML private TextField quantityField;
     @FXML private CheckBox availableCheckBox;
+    @FXML private Button saveButton;
+    @FXML private Label formTitleLabel;
+    @FXML private TableColumn<Product, Void> deleteColumn;
+    @FXML private ImageView imageView;
 
-
+    private byte[] selectedImageBytes;  // To store the selected image as a byte array
     private Product selectedProduct;
+    private final ProductDAO productDAO = new ProductDAO(); // adjust based on your setup
+
 
     @FXML
     public void initialize() {
-        nameColumn.setCellValueFactory(new PropertyValueFactory<>("Name"));
-        priceColumn.setCellValueFactory(new PropertyValueFactory<>("Price"));
-        categoryColumn.setCellValueFactory(new PropertyValueFactory<>("Category"));
+        nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+        priceColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
+        categoryColumn.setCellValueFactory(new PropertyValueFactory<>("category"));
         quantityColumn.setCellValueFactory(new PropertyValueFactory<>("quantity"));
         availableColumn.setCellValueFactory(new PropertyValueFactory<>("available"));
+        setDeleteButtonColumn();
 
-
-        // Example: Load products into the tabl
-        productsTable.setItems(FXCollections.observableArrayList(
-                new Product("Sneakers", 299.99, "Men", true, 50),
-                new Product("Running Shoes", 199.99, "Women", false, 30),
-                new Product("Leather Jacket", 499.50, "Men", true, 20),
-                new Product("Handbag", 249.99, "Women", true, 40),
-                new Product("Smart Watch", 149.99, "Electronics", true, 25),
-                new Product("Wireless Earbuds", 89.99, "Electronics", true, 60),
-                new Product("Kids T-shirt", 29.99, "Kids", false, 70),
-                new Product("Baby Shoes", 39.99, "Kids", true, 35),
-                new Product("Sports Socks (Pack of 3)", 15.99, "Accessories", true, 80),
-                new Product("Backpack", 69.99, "Accessories", true, 45),
-                new Product("Sunglasses", 59.99, "Accessories", false, 55),
-                new Product("Formal Shoes", 179.99, "Men", true, 22),
-                new Product("Heels", 129.99, "Women", true, 33),
-                new Product("Graphic Hoodie", 79.99, "Men", false, 44),
-                new Product("Yoga Pants", 59.99, "Women", true, 20)
-        ));
+        loadProducts();
     }
+
+    @FXML
+    private void onChooseImage() {
+        // Open a file chooser dialog to select the image
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Image Files", "*.jpg", "*.png", "*.gif"));
+        File selectedFile = fileChooser.showOpenDialog(new Stage());
+
+        if (selectedFile != null) {
+            try {
+                // Convert the selected image to byte array
+                FileInputStream fileInputStream = new FileInputStream(selectedFile);
+                selectedImageBytes = fileInputStream.readAllBytes();
+                fileInputStream.close();
+
+                // Display the image in the ImageView
+                Image image = new Image(new FileInputStream(selectedFile));
+                imageView.setImage(image);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void loadProducts() {
+        List<Product> productList = productDAO.getAllProducts();
+        productsTable.setItems(FXCollections.observableArrayList(productList));
+    }
+
 
     @FXML
     private void onProductSelected() {
         selectedProduct = productsTable.getSelectionModel().getSelectedItem();
+
         if (selectedProduct != null) {
             nameField.setText(selectedProduct.getName());
             priceField.setText(String.valueOf(selectedProduct.getPrice()));
             categoryField.setText(selectedProduct.getCategory());
-            quantityField.setText(String.valueOf(selectedProduct.getQuantity()));  // Update quantity
-            availableCheckBox.setSelected(selectedProduct.isAvailable());  // Update availability
+            quantityField.setText(String.valueOf(selectedProduct.getQuantity()));
+            availableCheckBox.setSelected(selectedProduct.isAvailable());
+
+                // Assuming the product has an image as a byte array
+                byte[] imageBytes = selectedProduct.getImage();
+
+                if (imageBytes != null && imageBytes.length > 0) {
+                    // Convert the byte array to an Image and set it to the ImageView
+                    Image image = new Image(new ByteArrayInputStream(imageBytes));
+
+                    // Make sure the UI is updated on the JavaFX Application Thread
+                    Platform.runLater(() -> {
+                        imageView.setImage(image);
+                    });
+                } else {
+                    // Set a placeholder image or clear the ImageView if no image is found
+                    Platform.runLater(() -> {
+                        imageView.setImage(null); // or set a default image
+                    });
+                }
+
+            saveButton.setText("Update Product");
+            formTitleLabel.setText("Edit Product");
         }
     }
+
 
     @FXML
-    private void onUpdateProduct() {
-        if (selectedProduct != null) {
-            selectedProduct.setName(nameField.getText());
-            selectedProduct.setPrice(Double.parseDouble(priceField.getText()));
-            selectedProduct.setCategory(categoryField.getText());
+    private void onSaveProduct() {
+        // Retrieve data from the form
+        String name = nameField.getText();
+        double price = Double.parseDouble(priceField.getText());
+        String category = categoryField.getText();
+        int quantity = Integer.parseInt(quantityField.getText());
+        boolean available = availableCheckBox.isSelected();
 
-            // Update quantity and availability
-            selectedProduct.setQuantity(Integer.parseInt(quantityField.getText()));  // Update quantity
-            selectedProduct.setAvailable(availableCheckBox.isSelected());  // Update availability
+        // Use selectedImageBytes or fall back to selectedProduct’s image
+        byte[] image = selectedImageBytes != null ? selectedImageBytes :
+                (selectedProduct != null ? selectedProduct.getImage() : new byte[0]);
 
-            // Refresh table view
-            productsTable.refresh();
-            clearForm(); // Clear the form after update
+        if (selectedProduct == null) {
+            // ➕ New product
+            Product newProduct = new Product(name, price, category, available, quantity, image);
+            productDAO.saveProduct(newProduct);
+        } else {
+            // 🔁 Update existing product
+            selectedProduct.setName(name);
+            selectedProduct.setPrice(price);
+            selectedProduct.setCategory(category);
+            selectedProduct.setQuantity(quantity);
+            selectedProduct.setAvailable(available);
+            selectedProduct.setImage(image); // update the image if changed
+
+            productDAO.updateProduct(selectedProduct); // Make sure you have this method
         }
-    }
 
+        loadProducts();
+        clearForm();
+    }
+    @FXML
+    private void onClearForm() {
+        clearForm();
+    }
 
     private void clearForm() {
         nameField.clear();
         priceField.clear();
         categoryField.clear();
         quantityField.clear();
-        availableCheckBox.setSelected(false);  // Uncheck the checkbox
+        availableCheckBox.setSelected(false);
         selectedProduct = null;
+        productsTable.getSelectionModel().clearSelection();
+        imageView.setImage(null);  // Or set to a default placeholder image if needed
+
+        saveButton.setText("Add Product");
+        formTitleLabel.setText("Add New Product");
+    }
+
+    private void setDeleteButtonColumn() {
+        deleteColumn.setCellFactory(new Callback<TableColumn<Product, Void>, TableCell<Product, Void>>() {
+            @Override
+            public TableCell<Product, Void> call(TableColumn<Product, Void> param) {
+                final TableCell<Product, Void> cell = new TableCell<Product, Void>() {
+                    private final Button deleteButton = new Button("Delete");
+
+                    {
+                        deleteButton.setPrefWidth(120); // Set width
+                        deleteButton.setStyle("-fx-background-color: #c0392b; -fx-text-fill: white;");
+                        deleteButton.setOnAction(event -> {
+                            Product product = getTableRow().getItem();
+                            if (product != null) {
+                                onDeleteProduct(product);
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void updateItem(Void item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (empty) {
+                            setGraphic(null);
+                        } else {
+                            setGraphic(deleteButton);
+                        }
+                    }
+                };
+                return cell;
+            }
+        });
     }
 
     @FXML
-    private void onClearForm() {
-        clearForm();
-        productsTable.getSelectionModel().clearSelection();
-    }
+    private void onDeleteProduct(Product product) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Delete Product");
+        alert.setHeaderText(null);
+        alert.setContentText("Are you sure you want to delete this product?");
 
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            productDAO.deleteProduct(product.getId());
+            productsTable.getItems().remove(product);
+        }
+    }
 }
