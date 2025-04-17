@@ -22,7 +22,6 @@ public class LoginController {
         if ("admin".equals(username) && "1234".equals(password)) {
             // Load the home.fxml
             Parent homePage = FXMLLoader.load(getClass().getResource("/com/example/ecommerce_app/dashboard-view.fxml"));
-
             // Get the stage
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
 

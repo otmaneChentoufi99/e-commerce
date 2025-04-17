@@ -1,6 +1,8 @@
 package com.example.ecommerce_app.controller;
 
+import com.example.ecommerce_app.dao.CategoryDAO;
 import com.example.ecommerce_app.dao.ProductDAO;
+import com.example.ecommerce_app.model.Category;
 import com.example.ecommerce_app.model.Product;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -32,6 +34,7 @@ public class ProductsController {
     @FXML private TextField nameField;
     @FXML private TextField priceField;
     @FXML private TextField categoryField;
+    @FXML private ComboBox<Category> categoryComboBox;
     @FXML private TextField quantityField;
     @FXML private CheckBox availableCheckBox;
     @FXML private Button saveButton;
@@ -42,6 +45,7 @@ public class ProductsController {
     private byte[] selectedImageBytes;  // To store the selected image as a byte array
     private Product selectedProduct;
     private final ProductDAO productDAO = new ProductDAO(); // adjust based on your setup
+    private final CategoryDAO categoryDAO = new CategoryDAO(); // adjust based on your setup
 
 
     @FXML
@@ -51,10 +55,17 @@ public class ProductsController {
         categoryColumn.setCellValueFactory(new PropertyValueFactory<>("category"));
         quantityColumn.setCellValueFactory(new PropertyValueFactory<>("quantity"));
         availableColumn.setCellValueFactory(new PropertyValueFactory<>("available"));
-        setDeleteButtonColumn();
 
+        setDeleteButtonColumn();
         loadProducts();
+        loadCategories(); // 👈 Add this
     }
+
+    private void loadCategories() {
+        List<Category> categories = categoryDAO.getAllCategories();
+        categoryComboBox.setItems(FXCollections.observableArrayList(categories));
+    }
+
 
     @FXML
     private void onChooseImage() {
@@ -92,7 +103,7 @@ public class ProductsController {
         if (selectedProduct != null) {
             nameField.setText(selectedProduct.getName());
             priceField.setText(String.valueOf(selectedProduct.getPrice()));
-            categoryField.setText(selectedProduct.getCategory());
+            categoryComboBox.setValue(selectedProduct.getCategory());
             quantityField.setText(String.valueOf(selectedProduct.getQuantity()));
             availableCheckBox.setSelected(selectedProduct.isAvailable());
 
@@ -125,7 +136,7 @@ public class ProductsController {
         // Retrieve data from the form
         String name = nameField.getText();
         double price = Double.parseDouble(priceField.getText());
-        String category = categoryField.getText();
+        Category category = categoryComboBox.getValue();
         int quantity = Integer.parseInt(quantityField.getText());
         boolean available = availableCheckBox.isSelected();
 
@@ -164,12 +175,14 @@ public class ProductsController {
         quantityField.clear();
         availableCheckBox.setSelected(false);
         selectedProduct = null;
+        selectedImageBytes = null; // 👈 Important fix here
         productsTable.getSelectionModel().clearSelection();
-        imageView.setImage(null);  // Or set to a default placeholder image if needed
+        imageView.setImage(null);
 
         saveButton.setText("Add Product");
         formTitleLabel.setText("Add New Product");
     }
+
 
     private void setDeleteButtonColumn() {
         deleteColumn.setCellFactory(new Callback<TableColumn<Product, Void>, TableCell<Product, Void>>() {
@@ -215,6 +228,8 @@ public class ProductsController {
         if (result.isPresent() && result.get() == ButtonType.OK) {
             productDAO.deleteProduct(product.getId());
             productsTable.getItems().remove(product);
+            loadProducts();
+            clearForm();
         }
     }
 }
