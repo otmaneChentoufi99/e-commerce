@@ -10,14 +10,28 @@
 
     <!-- Sidebar -->
     <VBox fx:id="sidebar" alignment="TOP_CENTER" prefHeight="600.0" prefWidth="224.0" spacing="15.0" style="-fx-background-color: #2c3e50;">
+        <!-- Home Button -->
         <Button onAction="#loadHome" text="Home" style="-fx-background-color: #34495e; -fx-text-fill: white; -fx-font-size: 14px; -fx-pref-width: 120; -fx-background-radius: 8;" />
-        <Button onAction="#loadProducts" text="product List" style="-fx-background-color: #34495e; -fx-text-fill: white; -fx-font-size: 14px; -fx-pref-width: 120; -fx-background-radius: 8;" />
-        <Button onAction="#loadSettings" text="commande List" style="-fx-background-color: #34495e; -fx-text-fill: white; -fx-font-size: 14px; -fx-pref-width: 120; -fx-background-radius: 8;" />
-      <padding>
-         <Insets top="100.0" />
-      </padding>
+
+        <!-- Product List Button -->
+        <Button onAction="#loadProducts" text="Product List" style="-fx-background-color: #34495e; -fx-text-fill: white; -fx-font-size: 14px; -fx-pref-width: 120; -fx-background-radius: 8;" />
+
+        <!-- Orders List Button -->
+        <Button onAction="#loadOrderList" text="Orders List"
+                style="-fx-background-color: #34495e; -fx-text-fill: white; -fx-font-size: 14px; -fx-pref-width: 120; -fx-background-radius: 8;" />
+
+
+        <!-- Delivery List Button -->
+        <Button onAction="#loadDeliveryList" text="Delivery List"
+                style="-fx-background-color: #34495e; -fx-text-fill: white; -fx-font-size: 14px; -fx-pref-width: 120; -fx-background-radius: 8;" />
+
+        <!-- Add top padding to the sidebar -->
+        <padding>
+            <Insets top="100.0" />
+        </padding>
     </VBox>
 
     <!-- Main Content -->
     <StackPane fx:id="contentArea" style="-fx-background-color: #ecf0f1;" HBox.hgrow="ALWAYS"/>
 </HBox>
+

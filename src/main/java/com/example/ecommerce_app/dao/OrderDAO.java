@@ -5,6 +5,8 @@ import com.example.ecommerce_app.model.OrderItem;
 import com.example.ecommerce_app.util.DatabaseConnection;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class OrderDAO {
 
@@ -50,5 +52,58 @@ public class OrderDAO {
                 }
             }
         }
+    }
+
+    public List<Order> getAllOrders() {
+        List<Order> orders = new ArrayList<>();
+
+        String orderSql = "SELECT * FROM orders";
+        String itemsSql = """
+            SELECT oi.product_id, oi.quantity, p.name AS product_name
+            FROM order_items oi
+            JOIN products p ON oi.product_id = p.id
+            WHERE oi.order_id = ?
+        """;
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement orderStmt = conn.prepareStatement(orderSql);
+             ResultSet rs = orderStmt.executeQuery()) {
+
+            while (rs.next()) {
+                Order order = new Order();
+                long orderId = rs.getLong("id");
+
+                order.setId(orderId);
+                order.setFullName(rs.getString("full_name"));
+                order.setPhone(rs.getString("phone"));
+                order.setAddress(rs.getString("address"));
+                order.setComment(rs.getString("comment"));
+                order.setPaymentMethod(rs.getString("payment_method"));
+                order.setOrderDate(rs.getTimestamp("order_date").toLocalDateTime());
+
+                // Get items for this order
+                try (PreparedStatement itemsStmt = conn.prepareStatement(itemsSql)) {
+                    itemsStmt.setLong(1, orderId);
+                    try (ResultSet itemRs = itemsStmt.executeQuery()) {
+                        List<OrderItem> items = new ArrayList<>();
+                        while (itemRs.next()) {
+                            OrderItem item = new OrderItem();
+                            item.setProductId(itemRs.getLong("product_id"));
+                            item.setQuantity(itemRs.getInt("quantity"));
+                            item.setProductName(itemRs.getString("product_name"));
+                            items.add(item);
+                        }
+                        order.setItems(items);
+                    }
+                }
+
+                orders.add(order);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return orders;
     }
 }

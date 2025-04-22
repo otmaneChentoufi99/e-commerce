@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.UUID;
 
 public class Order {
+    private Long id;
     private String fullName;
     private String phone;
     private String address;
@@ -12,6 +13,10 @@ public class Order {
     private String paymentMethod;
     private LocalDateTime orderDate = LocalDateTime.now();
     private List<OrderItem> items = new ArrayList<>();
+
+    public Order(){
+
+    }
 
     public Order(String fullName, String phone, String address, String comment, String paymentMethod) {
         this.fullName = fullName;
@@ -25,15 +30,67 @@ public class Order {
         items.add(item);
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
+    public String getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public void setPaymentMethod(String paymentMethod) {
+        this.paymentMethod = paymentMethod;
+    }
+
+    public LocalDateTime getOrderDate() {
+        return orderDate;
+    }
+
+    public void setOrderDate(LocalDateTime orderDate) {
+        this.orderDate = orderDate;
+    }
+
     public List<OrderItem> getItems() {
         return items;
     }
 
-    // Getters
-    public String getFullName() { return fullName; }
-    public String getPhone() { return phone; }
-    public String getAddress() { return address; }
-    public String getComment() { return comment; }
-    public String getPaymentMethod() { return paymentMethod; }
-    public LocalDateTime getOrderDate() { return orderDate; }
+    public void setItems(List<OrderItem> items) {
+        this.items = items;
+    }
 }

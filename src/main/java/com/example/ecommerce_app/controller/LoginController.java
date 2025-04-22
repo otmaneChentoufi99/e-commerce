@@ -1,36 +1,56 @@
 package com.example.ecommerce_app.controller;
 
+import com.example.ecommerce_app.dao.UserDAO;
+import com.example.ecommerce_app.model.User;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import javafx.scene.Node;
 
 import java.io.IOException;
 
 public class LoginController {
 
-    public javafx.scene.control.TextField usernameField;
-    public javafx.scene.control.PasswordField passwordField;
+    public TextField usernameField;
+    public PasswordField passwordField;
 
     public void handleLogin(ActionEvent event) throws IOException {
         String username = usernameField.getText();
         String password = passwordField.getText();
 
-        // Simple check for example purpose
-        if ("admin".equals(username) && "1234".equals(password)) {
-            // Load the home.fxml
-            Parent homePage = FXMLLoader.load(getClass().getResource("/com/example/ecommerce_app/dashboard-view.fxml"));
-            // Get the stage
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        User user = UserDAO.login(username, password);
 
-            // Set the scene
-            stage.setScene(new Scene(homePage));
-            stage.setTitle("Home Page");
-            stage.show();
-        } else {
+        if (user == null) {
             System.out.println("Invalid credentials.");
+            return;
         }
+
+        String role = user.getRole();
+        String fxmlPath = "";
+        String title = "";
+
+        switch (role) {
+            case "admin":
+                fxmlPath = "/com/example/ecommerce_app/admin_dashboard.fxml";
+                title = "Admin Dashboard";
+                break;
+            case "delivery":
+                fxmlPath = "/com/example/ecommerce_app/delivery_dashboard.fxml";
+                title = "Delivery Dashboard";
+                break;
+            default:
+                System.out.println("Unknown role: " + role);
+                return;
+        }
+
+        Parent page = FXMLLoader.load(getClass().getResource(fxmlPath));
+        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        stage.setScene(new Scene(page));
+        stage.setTitle(title);
+        stage.show();
     }
 }

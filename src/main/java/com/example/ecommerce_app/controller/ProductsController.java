@@ -130,7 +130,6 @@ public class ProductsController {
         }
     }
 
-
     @FXML
     private void onSaveProduct() {
         // Retrieve data from the form

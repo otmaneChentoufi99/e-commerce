@@ -8,6 +8,7 @@ import java.io.IOException;
 
 public class DashboardController {
 
+
     @FXML
     private StackPane contentArea;
 
@@ -16,11 +17,17 @@ public class DashboardController {
     }
 
     public void loadProducts() {
+
         loadUI("/com/example/ecommerce_app/products.fxml");
     }
 
-    public void loadSettings() {
-        loadUI("/com/example/ecommerce_app/settings.fxml");
+    public void loadOrderList() {
+        loadUI("/com/example/ecommerce_app/orders_list.fxml");
+    }
+
+
+    public void loadDeliveryList() {
+        loadUI("/com/example/ecommerce_app/delivery_list.fxml");
     }
 
     private void loadUI(String fxmlPath) {
