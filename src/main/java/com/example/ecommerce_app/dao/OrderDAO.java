@@ -1,7 +1,9 @@
 package com.example.ecommerce_app.dao;
 
+import com.example.ecommerce_app.model.DeliveryPerson;
 import com.example.ecommerce_app.model.Order;
 import com.example.ecommerce_app.model.OrderItem;
+import com.example.ecommerce_app.model.OrderStatus;
 import com.example.ecommerce_app.util.DatabaseConnection;
 
 import java.sql.*;
@@ -12,13 +14,12 @@ public class OrderDAO {
 
 
     public void saveOrder(Order order) throws SQLException {
-        String orderSql = "INSERT INTO orders (full_name, phone, address, comment, payment_method, order_date) VALUES (?, ?, ?, ?, ?, ?)";
+        String orderSql = "INSERT INTO orders (full_name, phone, address, comment, payment_method, order_date, status) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-        // Use a single PreparedStatement to handle both the order and items
         String itemSql = "INSERT INTO order_items (order_id, product_id, quantity) VALUES (?, ?, ?)";
 
         try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement orderStmt = conn.prepareStatement(orderSql, Statement.RETURN_GENERATED_KEYS);  // Specify to return generated keys
+             PreparedStatement orderStmt = conn.prepareStatement(orderSql, Statement.RETURN_GENERATED_KEYS);
              PreparedStatement itemStmt = conn.prepareStatement(itemSql)
         ) {
             // Save order
@@ -28,7 +29,7 @@ public class OrderDAO {
             orderStmt.setString(4, order.getComment());
             orderStmt.setString(5, order.getPaymentMethod());
             orderStmt.setTimestamp(6, java.sql.Timestamp.valueOf(order.getOrderDate()));
-
+            orderStmt.setString(7, order.getStatus().name());
             int rowsAffected = orderStmt.executeUpdate();
 
             // Retrieve generated order ID
@@ -53,16 +54,24 @@ public class OrderDAO {
             }
         }
     }
-
     public List<Order> getAllOrders() {
         List<Order> orders = new ArrayList<>();
 
-        String orderSql = "SELECT * FROM orders";
+        String orderSql = """
+        SELECT o.*, 
+               u.id as dp_id, 
+               u.username as dp_username,
+               u.phone as dp_phone,
+               u.area as dp_area
+        FROM orders o
+        LEFT JOIN users u ON o.delivery_person_id = u.id AND u.role = 'DELIVERY'
+        """;
+
         String itemsSql = """
-            SELECT oi.product_id, oi.quantity, p.name AS product_name
-            FROM order_items oi
-            JOIN products p ON oi.product_id = p.id
-            WHERE oi.order_id = ?
+        SELECT oi.product_id, oi.quantity, p.name AS product_name
+        FROM order_items oi
+        JOIN products p ON oi.product_id = p.id
+        WHERE oi.order_id = ?
         """;
 
         try (Connection conn = DatabaseConnection.getConnection();
@@ -73,15 +82,28 @@ public class OrderDAO {
                 Order order = new Order();
                 long orderId = rs.getLong("id");
 
+                // Set basic order info
                 order.setId(orderId);
                 order.setFullName(rs.getString("full_name"));
-                order.setPhone(rs.getString("phone"));
+                order.setPhone(rs.getString("phone"));  // Customer phone
                 order.setAddress(rs.getString("address"));
                 order.setComment(rs.getString("comment"));
+                order.setStatus(OrderStatus.valueOf(rs.getString("status")));
                 order.setPaymentMethod(rs.getString("payment_method"));
                 order.setOrderDate(rs.getTimestamp("order_date").toLocalDateTime());
 
-                // Get items for this order
+                // Set delivery person info
+                int dpId = rs.getInt("dp_id");
+                if (!rs.wasNull()) {
+                    DeliveryPerson dp = new DeliveryPerson();
+                    dp.setId(dpId);
+                    dp.setUsername(rs.getString("dp_username"));
+                    dp.setPhone(rs.getString("dp_phone"));  // Delivery person's phone
+                    dp.setArea(rs.getString("dp_area"));
+                    order.setDeliveryPerson(dp);
+                }
+
+                // Get order items
                 try (PreparedStatement itemsStmt = conn.prepareStatement(itemsSql)) {
                     itemsStmt.setLong(1, orderId);
                     try (ResultSet itemRs = itemsStmt.executeQuery()) {
@@ -96,14 +118,36 @@ public class OrderDAO {
                         order.setItems(items);
                     }
                 }
-
                 orders.add(order);
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            // Consider proper error handling
+        }
+        return orders;
+    }
 
+    public void assignDeliveryPerson(Long orderId, int deliveryPersonId) {
+        String sql = "UPDATE orders SET delivery_person_id = ? WHERE id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setLong(1, deliveryPersonId);
+            stmt.setLong(2, orderId);
+            stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
-        return orders;
+    }
+    // Add this method to OrderDAO:
+    public void updateOrderStatus(Long orderId, OrderStatus status) {
+        String sql = "UPDATE orders SET status = ? WHERE id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, status.name());
+            stmt.setLong(2, orderId);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -2,31 +2,36 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 <?import javafx.geometry.Insets?>
 
-<BorderPane xmlns="http://javafx.com/javafx/8.0.171"
-            xmlns:fx="http://javafx.com/fxml"
+<BorderPane xmlns="http://javafx.com/javafx/11.0.2"
+            xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.example.ecommerce_app.controller.OrderListController">
-
-    <top>
-        <Label text="🛒 Order Management"
-               style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-padding: 15;"/>
-    </top>
-
     <center>
-        <VBox spacing="15">
-            <TableView fx:id="orderTable" prefHeight="400" VBox.vgrow="ALWAYS">
-                <columns>
-                    <TableColumn fx:id="idColumn" text="Order ID" prefWidth="80"/>
-                    <TableColumn fx:id="nameColumn" text="Full Name" prefWidth="150"/>
-                    <TableColumn fx:id="phoneColumn" text="Phone" prefWidth="120"/>
-                    <TableColumn fx:id="itemsColumn" text="Items" prefWidth="250"/>
-                    <TableColumn fx:id="paymentColumn" text="Payment Method" prefWidth="120"/>
-                    <TableColumn fx:id="dateColumn" text="Order Date" prefWidth="180"/>
-                </columns>
-            </TableView>
-
-        </VBox>
+        <TableView fx:id="ordersTable" editable="true">
+            <columns>
+                <TableColumn fx:id="idColumn" text="ID" />
+                <TableColumn fx:id="fullNameColumn" text="Customer Name" />
+                <TableColumn fx:id="addressColumn" text="Address" />
+                <TableColumn fx:id="statusColumn" text="Status" />
+                <TableColumn fx:id="deliveryPersonColumn" text="Delivery Person" />
+                <TableColumn fx:id="assignColumn" text="Assign" />
+                <TableColumn fx:id="paymentMethodColumn" text="Payment Method" />
+                <TableColumn fx:id="orderDateColumn" text="Order Date" />
+                <TableColumn fx:id="itemsColumn" text="Items Count" />
+            </columns>
+        </TableView>
     </center>
 
+    <top>
+        <VBox spacing="10">
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label text="Orders Management" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+                <Button text="Refresh" onAction="#refreshOrders" />
+                <Button text="Show Assigned" onAction="#showAssignedOrders" />
+                <Button text="Show Unassigned" onAction="#showUnassignedOrders" />
+            </HBox>
+        </VBox>
+    </top>
 </BorderPane>

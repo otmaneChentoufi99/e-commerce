@@ -2,14 +2,15 @@ package com.example.ecommerce_app.model;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public class Order {
     private Long id;
     private String fullName;
     private String phone;
     private String address;
+    private OrderStatus status = OrderStatus.PENDING;
     private String comment;
+    private DeliveryPerson deliveryPerson;
     private String paymentMethod;
     private LocalDateTime orderDate = LocalDateTime.now();
     private List<OrderItem> items = new ArrayList<>();
@@ -68,6 +69,23 @@ public class Order {
 
     public void setComment(String comment) {
         this.comment = comment;
+    }
+
+    public DeliveryPerson getDeliveryPerson() {
+        return deliveryPerson;
+    }
+
+    public void setDeliveryPerson(DeliveryPerson deliveryPerson) {
+        this.deliveryPerson = deliveryPerson;
+    }
+
+
+    public OrderStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(OrderStatus status) {
+        this.status = status;
     }
 
     public String getPaymentMethod() {
