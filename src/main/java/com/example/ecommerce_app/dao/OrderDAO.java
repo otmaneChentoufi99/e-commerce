@@ -150,4 +150,46 @@ public class OrderDAO {
             e.printStackTrace();
         }
     }
+
+    public List<Order> getOrdersByDeliveryPerson(int deliveryPersonId) {
+        List<Order> orders = new ArrayList<>();
+        String sql = "SELECT * FROM orders WHERE delivery_person_id = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setLong(1, deliveryPersonId);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Order order = mapResultSetToOrder(rs);
+                orders.add(order);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return orders;
+    }
+
+    private static Order mapResultSetToOrder(ResultSet rs) throws SQLException {
+        Order order = new Order();
+        order.setId(rs.getLong("id"));
+        order.setFullName(rs.getString("full_name"));
+        order.setPhone(rs.getString("phone"));
+        order.setAddress(rs.getString("address"));
+        order.setPaymentMethod(rs.getString("payment_method"));
+        order.setComment(rs.getString("comment"));
+        order.setOrderDate(rs.getTimestamp("order_date").toLocalDateTime());
+
+        String statusStr = rs.getString("status");
+        if (statusStr != null) {
+            order.setStatus(OrderStatus.valueOf(statusStr));
+        }
+
+        return order;
+    }
+
+
 }

@@ -4,17 +4,23 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Button?>
-<AnchorPane xmlns:fx="http://javafx.com/fxml/1"
-            xmlns="http://javafx.com/javafx/17"
-            fx:controller="com.example.ecommerce_app.controller.DeliveryDashboardController"
-            prefHeight="400.0" prefWidth="600.0">
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.example.ecommerce_app.controller.DeliveryDashboardController"
+      spacing="10">
 
-    <children>
-        <VBox alignment="CENTER" spacing="20" layoutX="100.0" layoutY="50.0" prefWidth="400.0">
-            <Label text="Delivery Dashboard" style="-fx-font-size: 24px; -fx-font-weight: bold;" />
-            <Label fx:id="areaLabel" text="Area: " style="-fx-font-size: 16px;" />
-            <Button text="View My Deliveries" onAction="#handleViewDeliveries" />
-            <Button text="Logout" onAction="#handleLogout" />
-        </VBox>
-    </children>
-</AnchorPane>
+    <Label text="🚚 Your Assigned Orders" style="-fx-font-size: 18px;"/>
+
+    <TableView fx:id="orderTable" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="idColumn" text="Order ID"/>
+            <TableColumn fx:id="nameColumn" text="Customer"/>
+            <TableColumn fx:id="addressColumn" text="Address"/>
+            <TableColumn fx:id="statusColumn" text="Status"/>
+            <TableColumn fx:id="actionColumn" text="Change Status"/>
+        </columns>
+    </TableView>
+</VBox>
+

@@ -37,20 +37,35 @@ public class LoginController {
             case "admin":
                 fxmlPath = "/com/example/ecommerce_app/admin_dashboard.fxml";
                 title = "Admin Dashboard";
+
+                Parent adminPage = FXMLLoader.load(getClass().getResource(fxmlPath));
+                Stage adminStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+                adminStage.setScene(new Scene(adminPage));
+                adminStage.setTitle(title);
+                adminStage.show();
                 break;
+
             case "delivery":
                 fxmlPath = "/com/example/ecommerce_app/delivery_dashboard.fxml";
                 title = "Delivery Dashboard";
+
+                FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+                Parent deliveryPage = loader.load();
+
+                DeliveryDashboardController controller = loader.getController();
+                System.out.println(user.getUsername());
+                System.out.println(user.getId());
+                controller.setDeliveryPersonId(user.getId()); // assuming User is the DeliveryPerson
+
+                Stage deliveryStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+                deliveryStage.setScene(new Scene(deliveryPage));
+                deliveryStage.setTitle(title);
+                deliveryStage.show();
                 break;
+
             default:
                 System.out.println("Unknown role: " + role);
                 return;
         }
-
-        Parent page = FXMLLoader.load(getClass().getResource(fxmlPath));
-        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        stage.setScene(new Scene(page));
-        stage.setTitle(title);
-        stage.show();
     }
 }

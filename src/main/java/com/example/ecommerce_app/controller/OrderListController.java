@@ -62,6 +62,40 @@ public class OrderListController implements Initializable {
         itemsColumn.setCellValueFactory(cellData ->
                 new SimpleIntegerProperty(cellData.getValue().getItems().size()).asObject());
 
+        statusColumn.setCellFactory(column -> new TableCell<Order, OrderStatus>() {
+            @Override
+            protected void updateItem(OrderStatus status, boolean empty) {
+                super.updateItem(status, empty);
+
+                if (empty || status == null) {
+                    setText(null);
+                    setStyle("");
+                } else {
+                    setText(status.toString());
+
+                    // Color logic
+                    switch (status) {
+                        case PENDING:
+                            setStyle("-fx-background-color: orange; -fx-text-fill: white;");
+                            break;
+                        case DISTRIBUTING:
+                            setStyle("-fx-background-color: #3498db; -fx-text-fill: white;");
+                            break;
+                        case DELIVERED:
+                            setStyle("-fx-background-color: #2ecc71; -fx-text-fill: white;");
+                            break;
+                        case CANCELLED:
+                            setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white;");
+                            break;
+                        default:
+                            setStyle("");
+                            break;
+                    }
+                }
+            }
+        });
+
+
         // Delivery Person column
         deliveryPersonColumn.setCellValueFactory(cellData -> {
             DeliveryPerson dp = cellData.getValue().getDeliveryPerson();

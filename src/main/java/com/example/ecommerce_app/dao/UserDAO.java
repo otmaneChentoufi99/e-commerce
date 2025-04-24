@@ -21,11 +21,11 @@ public class UserDAO {
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
-                return new User(
-                        rs.getString("username"),
-                        rs.getString("password"),
-                        rs.getString("role")
-                        );
+               User user = new User();
+               user.setId(rs.getInt("id"));
+               user.setUsername(rs.getString("username"));
+               user.setRole(rs.getString("role"));
+               return user;
             }
         } catch (Exception e) {
             e.printStackTrace();

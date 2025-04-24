@@ -7,7 +7,8 @@
 
 <BorderPane xmlns="http://javafx.com/javafx/11.0.2"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.example.ecommerce_app.controller.OrderListController">
+            style="-fx-background-color: #ecf0f1; -fx-padding: 15; -fx-border-color: #bdc3c7; -fx-border-radius: 5"
+fx:controller="com.example.ecommerce_app.controller.OrderListController">
     <center>
         <TableView fx:id="ordersTable" editable="true">
             <columns>
@@ -28,9 +29,9 @@
         <VBox spacing="10">
             <HBox spacing="10" alignment="CENTER_LEFT">
                 <Label text="Orders Management" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
-                <Button text="Refresh" onAction="#refreshOrders" />
-                <Button text="Show Assigned" onAction="#showAssignedOrders" />
-                <Button text="Show Unassigned" onAction="#showUnassignedOrders" />
+                <Button text="Refresh" onAction="#refreshOrders"  style="-fx-background-color: blue; -fx-text-fill: white;"/>
+                <Button text="Show Assigned" onAction="#showAssignedOrders"  style="-fx-background-color: green; -fx-text-fill: white;"/>
+                <Button text="Show Unassigned" onAction="#showUnassignedOrders"  style="-fx-background-color: red; -fx-text-fill: white;"/>
             </HBox>
         </VBox>
     </top>
