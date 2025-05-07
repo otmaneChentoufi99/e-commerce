@@ -33,10 +33,8 @@ public class ProductsController {
 
     @FXML private TextField nameField;
     @FXML private TextField priceField;
-    @FXML private TextField categoryField;
     @FXML private ComboBox<Category> categoryComboBox;
     @FXML private TextField quantityField;
-    @FXML private CheckBox availableCheckBox;
     @FXML private Button saveButton;
     @FXML private Label formTitleLabel;
     @FXML private TableColumn<Product, Void> deleteColumn;
@@ -105,7 +103,6 @@ public class ProductsController {
             priceField.setText(String.valueOf(selectedProduct.getPrice()));
             categoryComboBox.setValue(selectedProduct.getCategory());
             quantityField.setText(String.valueOf(selectedProduct.getQuantity()));
-            availableCheckBox.setSelected(selectedProduct.isAvailable());
 
                 // Assuming the product has an image as a byte array
                 byte[] imageBytes = selectedProduct.getImage();
@@ -137,7 +134,6 @@ public class ProductsController {
         double price = Double.parseDouble(priceField.getText());
         Category category = categoryComboBox.getValue();
         int quantity = Integer.parseInt(quantityField.getText());
-        boolean available = availableCheckBox.isSelected();
 
         // Use selectedImageBytes or fall back to selectedProduct’s image
         byte[] image = selectedImageBytes != null ? selectedImageBytes :
@@ -145,7 +141,13 @@ public class ProductsController {
 
         if (selectedProduct == null) {
             // ➕ New product
-            Product newProduct = new Product(name, price, category, available, quantity, image);
+            Product newProduct = new Product();
+            newProduct.setName(name);
+            newProduct.setPrice(price);
+            newProduct.setCategory(category);
+            newProduct.setQuantity(quantity);
+            newProduct.setImage(image);
+
             productDAO.saveProduct(newProduct);
         } else {
             // 🔁 Update existing product
@@ -153,7 +155,6 @@ public class ProductsController {
             selectedProduct.setPrice(price);
             selectedProduct.setCategory(category);
             selectedProduct.setQuantity(quantity);
-            selectedProduct.setAvailable(available);
             selectedProduct.setImage(image); // update the image if changed
 
             productDAO.updateProduct(selectedProduct); // Make sure you have this method
@@ -170,9 +171,8 @@ public class ProductsController {
     private void clearForm() {
         nameField.clear();
         priceField.clear();
-        categoryField.clear();
+        categoryComboBox.setValue(null);
         quantityField.clear();
-        availableCheckBox.setSelected(false);
         selectedProduct = null;
         selectedImageBytes = null; // 👈 Important fix here
         productsTable.getSelectionModel().clearSelection();

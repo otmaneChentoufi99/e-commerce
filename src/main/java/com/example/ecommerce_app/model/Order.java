@@ -14,9 +14,9 @@ public class Order {
     private String paymentMethod;
     private LocalDateTime orderDate = LocalDateTime.now();
     private List<OrderItem> items = new ArrayList<>();
+    private double totalPrice;
 
     public Order(){
-
     }
 
     public Order(String fullName, String phone, String address, String comment, String paymentMethod) {

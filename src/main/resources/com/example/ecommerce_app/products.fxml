@@ -53,11 +53,6 @@
                 <TextField fx:id="quantityField" prefWidth="300"/>
             </HBox>
 
-            <HBox spacing="10">
-                <Label text="Available:" prefWidth="100"/>
-                <CheckBox fx:id="availableCheckBox" prefWidth="300"/>
-            </HBox>
-
             <!-- Image Upload Button -->
             <HBox spacing="10">
                 <Label text="Product Image:" prefWidth="100"/>

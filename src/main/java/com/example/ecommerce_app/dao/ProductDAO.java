@@ -12,6 +12,7 @@ public class ProductDAO {
 
     // Method to get all products
     public List<Product> getAllProducts() {
+
         List<Product> products = new ArrayList<>();
         String sql = "SELECT p.*, c.id AS category_id, c.name AS category_name " +
                 "FROM products p " +
@@ -56,7 +57,7 @@ public class ProductDAO {
             stmt.setString(1, product.getName());
             stmt.setDouble(2, product.getPrice());
             stmt.setInt(3, product.getCategory().getId()); // Save category id
-            stmt.setBoolean(4, product.isAvailable());
+            stmt.setBoolean(4, product.getQuantity() > 0); // Set available based on quantity
             stmt.setInt(5, product.getQuantity());
             stmt.setBytes(6, product.getImage());
 
@@ -80,7 +81,7 @@ public class ProductDAO {
             stmt.setDouble(2, product.getPrice());
             stmt.setInt(3, product.getCategory().getId()); // Update category id
             stmt.setInt(4, product.getQuantity());
-            stmt.setBoolean(5, product.isAvailable());
+            stmt.setBoolean(5, product.getQuantity()>0);
             stmt.setBytes(6, product.getImage());
             stmt.setInt(7, product.getId());
 
@@ -121,16 +122,14 @@ public class ProductDAO {
             while (rs.next()) {
                 Category categoryDB = new Category(rs.getInt("category_id"), rs.getString("category_name"));
 
-                Product product = new Product(
-                        rs.getString("name"),
-                        rs.getDouble("price"),
-                        categoryDB,
-                        rs.getBoolean("available"),
-                        rs.getInt("quantity"),
-                        rs.getBytes("image")
-                );
-                product.setId(rs.getInt("id"));
-                products.add(product);
+                Product p = new Product();
+                p.setId(rs.getInt("id"));
+                p.setName(rs.getString("name"));
+                p.setPrice(rs.getDouble("price"));
+                p.setCategory(categoryDB);
+                p.setQuantity(rs.getInt("quantity"));
+                p.setAvailable(rs.getBoolean("available"));
+                products.add(p);
             }
 
         } catch (SQLException e) {
