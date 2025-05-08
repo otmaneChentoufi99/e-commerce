@@ -7,23 +7,31 @@ import com.example.ecommerce_app.model.OrderItem;
 import com.example.ecommerce_app.model.Product;
 import com.example.ecommerce_app.service.CartService;
 import com.example.ecommerce_app.service.ProductService;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.*;
 import javafx.scene.layout.*;
 import javafx.geometry.*;
+import javafx.stage.Stage;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.*;
 public class StoreController {
 
 
-    @FXML private HBox navbar;
-    @FXML private FlowPane productContainer;
+    @FXML
+    private HBox navbar;
+    @FXML
+    private FlowPane productContainer;
 
     private final ProductService productService = new ProductService();
     private final OrderDAO orderDAO = new OrderDAO();
-
 
 
     public void initialize() {
@@ -40,7 +48,7 @@ public class StoreController {
                             "-fx-text-fill: black;" +
                             "-fx-cursor: hand;" +
                             "-fx-font-size: 18px;" +
-                            "-fx-font-weight: medium;" +
+                            "-fx-font-weight: normal;" +
                             "-fx-padding: 0 5 0 5;"
             );
             btn.setOnAction(e -> loadProductsByCategory(category.getName()));
@@ -72,7 +80,6 @@ public class StoreController {
         productContainer.getChildren().clear();
         List<Product> products = productService.getProductsByCategory(category);
         System.out.println("Loading products for category: " + category + ", found: " + products.size());
-
         for (Product p : products) {
             VBox card = createProductCard(p);
             productContainer.getChildren().add(card);
@@ -82,24 +89,40 @@ public class StoreController {
     private VBox createProductCard(Product product) {
         ByteArrayInputStream bis = new ByteArrayInputStream(product.getImage());
         ImageView imageView = new ImageView(new Image(bis));
-        imageView.setFitWidth(200);
-        imageView.setPreserveRatio(true);
+        // 2. Set fixed display dimensions
+        imageView.setFitHeight(250);  // Fixed height
+        imageView.setFitWidth(200);  // Fixed height
+        imageView.setPreserveRatio(true);  // Maintain aspect ratio
+        imageView.setSmooth(true);  // Better rendering quality
 
+        // 3. Wrap ImageView in a fixed-size container (ensures consistent spacing)
+        StackPane imageContainer = new StackPane(imageView);
+        imageContainer.setMinHeight(250);  // Match the ImageView height
+        imageContainer.setMinWidth(200);  // Match the ImageView height
+        imageContainer.setAlignment(Pos.CENTER);
+
+        // 4. Product details
         Label nameLabel = new Label(product.getName());
-        Label priceLabel = new Label("$" + product.getPrice());
+        nameLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
 
+        Label priceLabel = new Label(String.format("$%.2f", product.getPrice()));
+        priceLabel.setStyle("-fx-text-fill: #e74c3c; -fx-font-size: 16px;");
+
+        // 5. Buttons
         Button addToCartButton = new Button("Add to Cart");
+        addToCartButton.setStyle("-fx-background-color: #2ecc71; -fx-text-fill: white;");
         addToCartButton.setOnAction(e -> CartService.addToCart(product));
 
         Button orderButton = new Button("Order Now");
         orderButton.setStyle("-fx-background-color: #3498db; -fx-text-fill: white;");
-        orderButton.setOnAction(e -> showOrderDialog(product));  // Single product
+        orderButton.setOnAction(e -> showOrderDialog(product));
 
-        VBox card = new VBox(10, imageView, nameLabel, priceLabel, addToCartButton, orderButton);
+        // 6. Assemble the card
+        VBox card = new VBox(10, imageContainer, nameLabel, priceLabel, addToCartButton, orderButton);
         card.setAlignment(Pos.CENTER);
         card.setPadding(new Insets(10));
-        card.setStyle("-fx-border-color: lightgray; -fx-border-radius: 10;");
-
+        card.setStyle("-fx-border-color: #e0e0e0;-fx-background-color: white;");
+        card.setMinWidth(200);  // Optional: Set a minimum width for alignment
         return card;
     }
 
@@ -207,7 +230,7 @@ public class StoreController {
                 openCartPage();
             });
 
-            HBox itemRow = new HBox(10, imageView, nameLabel, categoryLabel ,quantityLabel, quantitySpinner, deleteButton);
+            HBox itemRow = new HBox(10, imageView, nameLabel, categoryLabel, quantityLabel, quantitySpinner, deleteButton);
             itemRow.setAlignment(Pos.CENTER_LEFT);
             cartBox.getChildren().add(itemRow);
         }
@@ -229,6 +252,20 @@ public class StoreController {
         dialog.getDialogPane().getButtonTypes().add(ButtonType.CANCEL);
 
         dialog.showAndWait();
+    }
+    public void showLogin(ActionEvent event) {
+        try {
+            Stage currentStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+
+            Parent root = FXMLLoader.load(getClass().getResource("/com/example/ecommerce_app/login-view.fxml"));
+            Stage loginStage = new Stage();
+            loginStage.setScene(new Scene(root));
+            loginStage.setTitle("Admin/Delivery Login");
+            currentStage.close();
+            loginStage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
 

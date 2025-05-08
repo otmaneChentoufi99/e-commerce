@@ -35,8 +35,7 @@ public class ProductDAO {
                     p.setCategory(category);
                     p.setQuantity(rs.getInt("quantity"));
                     p.setAvailable(rs.getBoolean("available"));
-                    byte[] imageBytes = rs.getBytes("image");
-                    p.setImage(imageBytes);
+                    p.setImage(rs.getBytes("image"));
                     products.add(p);
                 }
             }
@@ -129,6 +128,7 @@ public class ProductDAO {
                 p.setCategory(categoryDB);
                 p.setQuantity(rs.getInt("quantity"));
                 p.setAvailable(rs.getBoolean("available"));
+                p.setImage(rs.getBytes("image"));
                 products.add(p);
             }
 
