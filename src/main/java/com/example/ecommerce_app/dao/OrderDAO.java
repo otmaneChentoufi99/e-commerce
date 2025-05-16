@@ -47,6 +47,15 @@ public class OrderDAO {
                         }
 
                         itemStmt.executeBatch();  // Insert all items in a batch
+                        String updateStockSql = "UPDATE products SET quantity = quantity - ? WHERE id = ?";
+                        try (PreparedStatement updateStockStmt = conn.prepareStatement(updateStockSql)) {
+                            for (OrderItem item : order.getItems()) {
+                                updateStockStmt.setInt(1, item.getQuantity());
+                                updateStockStmt.setLong(2, item.getProductId());
+                                updateStockStmt.addBatch();
+                            }
+                            updateStockStmt.executeBatch(); // Execute stock updates
+                        }
                     } else {
                         throw new SQLException("Failed to retrieve order ID.");
                     }
@@ -54,6 +63,7 @@ public class OrderDAO {
             }
         }
     }
+
     public List<Order> getAllOrders() {
         List<Order> orders = new ArrayList<>();
 

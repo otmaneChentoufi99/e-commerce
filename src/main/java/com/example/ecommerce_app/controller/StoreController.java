@@ -147,12 +147,48 @@ public class StoreController {
         addressArea.setPrefRowCount(2);
         commentArea.setPrefRowCount(2);
 
-        VBox content = new VBox(10,
+        // Map to hold quantity spinners for each product
+        Map<Product, Spinner<Integer>> quantitySpinners = new HashMap<>();
+
+        // --- Product Info Section with Quantity Editing ---
+        VBox productInfoBox = new VBox(5);
+        productInfoBox.getChildren().add(new Label("Products:"));
+
+        for (Product p : products) {
+            // Load image from byte[] and scale it
+            ImageView imageView = new ImageView();
+            if (p.getImage() != null) {
+                Image image = new Image(new ByteArrayInputStream(p.getImage()));
+                imageView.setImage(image);
+                imageView.setFitHeight(60);
+                imageView.setFitWidth(60);
+                imageView.setPreserveRatio(true);
+            }
+
+            Label nameLabel = new Label(p.getName() + " - " + p.getPrice() + " MAD");
+
+
+            Spinner<Integer> qtySpinner = new Spinner<>(1, p.getQuantity(), 1);
+            quantitySpinners.put(p, qtySpinner);
+
+            VBox textInfo = new VBox(nameLabel, new HBox(new Label("Qty:"), qtySpinner));
+            textInfo.setSpacing(5);
+
+            HBox productRow = new HBox(10, imageView, textInfo);
+            productRow.setAlignment(Pos.CENTER_LEFT);
+            productInfoBox.getChildren().add(productRow);
+
+        }
+
+        // --- Form Section ---
+        VBox formBox = new VBox(10,
                 new Label("Full Name:"), fullNameField,
                 new Label("Phone Number:"), phoneField,
                 new Label("Address:"), addressArea,
                 new Label("Comment:"), commentArea
         );
+
+        VBox content = new VBox(15, productInfoBox, formBox);
         content.setPadding(new Insets(10));
 
         dialog.getDialogPane().setContent(content);
@@ -172,14 +208,14 @@ public class StoreController {
 
             try {
                 Order order = new Order(fullName, phone, address, comment, "Cash on Delivery");
-
-                for (Product product : products) {
-                    int quantity = product.getQuantity();
-                    order.addItem(new OrderItem(product.getId(), quantity));
+                for (Map.Entry<Product, Spinner<Integer>> entry : quantitySpinners.entrySet()) {
+                    Product product = entry.getKey();
+                    int qty = entry.getValue().getValue();
+                    order.addItem(new OrderItem(product.getId(), qty));
                 }
 
                 orderDAO.saveOrder(order);
-                CartService.clearCart(); // Optional
+                CartService.clearCart();
                 showAlert("Order Placed", "Your order has been received. Thank you!");
             } catch (Exception e) {
                 e.printStackTrace();
@@ -211,6 +247,7 @@ public class StoreController {
             imageView.setFitHeight(50);
 
             Label nameLabel = new Label(p.getName());
+            nameLabel.setMaxWidth(150);
             Label categoryLabel = new Label("Category: " + p.getCategory());
             Spinner<Integer> quantitySpinner = new Spinner<>(1, 5, p.getQuantity());
             quantitySpinner.setEditable(true);
@@ -230,8 +267,14 @@ public class StoreController {
                 openCartPage();
             });
 
-            HBox itemRow = new HBox(10, imageView, nameLabel, categoryLabel, quantityLabel, quantitySpinner, deleteButton);
+            nameLabel.setPrefWidth(150);
+            quantityLabel.setPrefWidth(60);
+            quantitySpinner.setPrefWidth(80);
+            deleteButton.setPrefWidth(80);
+
+            HBox itemRow = new HBox(5, imageView, nameLabel, quantityLabel, quantitySpinner, deleteButton);
             itemRow.setAlignment(Pos.CENTER_LEFT);
+            itemRow.setSpacing(5);
             cartBox.getChildren().add(itemRow);
         }
 
