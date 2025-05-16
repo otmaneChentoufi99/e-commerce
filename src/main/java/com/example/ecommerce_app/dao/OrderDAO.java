@@ -114,6 +114,8 @@ public class OrderDAO {
                 }
 
                 // Get order items
+                double totalPrice = 0.0;
+
                 try (PreparedStatement itemsStmt = conn.prepareStatement(itemsSql)) {
                     itemsStmt.setLong(1, orderId);
                     try (ResultSet itemRs = itemsStmt.executeQuery()) {
@@ -123,9 +125,26 @@ public class OrderDAO {
                             item.setProductId(itemRs.getLong("product_id"));
                             item.setQuantity(itemRs.getInt("quantity"));
                             item.setProductName(itemRs.getString("product_name"));
+
+                            // Fetch product price by ID
+                            double productPrice = 0.0;
+                            try (PreparedStatement priceStmt = conn.prepareStatement("SELECT price FROM products WHERE id = ?")) {
+                                priceStmt.setLong(1, item.getProductId());
+                                try (ResultSet priceRs = priceStmt.executeQuery()) {
+                                    if (priceRs.next()) {
+                                        productPrice = priceRs.getDouble("price");
+                                    }
+                                }
+                            }
+
+                            // Set price in item and calculate total
+                            item.setProductPrice(productPrice); // assuming OrderItem has a setProductPrice method
+                            totalPrice += productPrice * item.getQuantity();
+
                             items.add(item);
                         }
                         order.setItems(items);
+                        order.setTotalPrice(totalPrice); // assuming Order has a setTotalPrice method
                     }
                 }
                 orders.add(order);

@@ -40,6 +40,8 @@ public class OrderListController implements Initializable {
     @FXML private TableColumn<Order, String> paymentMethodColumn;
     @FXML private TableColumn<Order, LocalDateTime> orderDateColumn;
     @FXML private TableColumn<Order, Integer> itemsColumn;
+    @FXML private TableColumn<Order, Double> totalPrice;
+
 
     private final OrderDAO orderDAO = new OrderDAO();
     private final DeliveryPersonDAO deliveryPersonDAO = new DeliveryPersonDAO();
@@ -59,6 +61,8 @@ public class OrderListController implements Initializable {
         statusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
         paymentMethodColumn.setCellValueFactory(new PropertyValueFactory<>("paymentMethod"));
         orderDateColumn.setCellValueFactory(new PropertyValueFactory<>("orderDate"));
+        totalPrice.setCellValueFactory(new  PropertyValueFactory<>("totalPrice"));
+
         itemsColumn.setCellValueFactory(cellData ->
                 new SimpleIntegerProperty(cellData.getValue().getItems().size()).asObject());
 
