@@ -28,10 +28,12 @@ fx:controller="com.example.ecommerce_app.controller.OrderListController">
     <top>
         <VBox spacing="10">
             <HBox spacing="10" alignment="CENTER_LEFT">
-                <Label text="Orders Management" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
-                <Button text="Refresh" onAction="#refreshOrders"  style="-fx-background-color: blue; -fx-text-fill: white;"/>
-                <Button text="Show Assigned" onAction="#showAssignedOrders"  style="-fx-background-color: green; -fx-text-fill: white;"/>
-                <Button text="Show Unassigned" onAction="#showUnassignedOrders"  style="-fx-background-color: red; -fx-text-fill: white;"/>
+                <Label text="Orders Management" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-font-weight: bold;"/>
+                <Button text="Refresh" onAction="#refreshOrders"  style="-fx-background-color: blue; -fx-text-fill: white;-fx-font-weight: bold;"/>
+                <Button text="Show Assigned" onAction="#showAssignedOrders"  style="-fx-background-color: green; -fx-text-fill: white;-fx-font-weight: bold;"/>
+                <Button text="Show Unassigned" onAction="#showUnassignedOrders"  style="-fx-background-color: red; -fx-text-fill: white;-fx-font-weight: bold;"/>
+                <Button text="Show delivred orders" onAction="#showDeliveredOrders"  style="-fx-background-color: green; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                <Button text="Show canceled orders" onAction="#showCanceledOrders"  style="-fx-background-color: red; -fx-text-fill: white; -fx-font-weight: bold;"/>
             </HBox>
         </VBox>
     </top>

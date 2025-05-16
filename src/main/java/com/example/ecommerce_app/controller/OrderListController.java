@@ -212,6 +212,20 @@ public class OrderListController implements Initializable {
     }
 
     @FXML
+    private void showDeliveredOrders() {
+        orders.setAll(orderDAO.getAllOrders().stream()
+                .filter(order -> order.getStatus().name().equals("DELIVERED"))
+                .collect(Collectors.toList()));
+    }
+
+    @FXML
+    private void showCanceledOrders() {
+        orders.setAll(orderDAO.getAllOrders().stream()
+                .filter(order -> order.getStatus().name().equals("CANCELLED"))
+                .collect(Collectors.toList()));
+    }
+
+    @FXML
     private void showUnassignedOrders() {
         orders.setAll(orderDAO.getAllOrders().stream()
                 .filter(order -> order.getDeliveryPerson() == null)
