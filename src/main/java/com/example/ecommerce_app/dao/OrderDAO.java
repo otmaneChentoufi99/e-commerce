@@ -217,8 +217,43 @@ public class OrderDAO {
             order.setStatus(OrderStatus.valueOf(statusStr));
         }
 
+        // Add order items and calculate total price
+        List<OrderItem> items = getOrderItemsByOrderId(order.getId());
+        order.setItems(items);
+
+        double total = 0;
+        for (OrderItem item : items) {
+            total += Math.round((50 + Math.random() * 45) * 10.0) / 10.0 * item.getQuantity();
+        }
+        order.setTotalPrice(total);
+
+
         return order;
     }
 
+    private static List<OrderItem> getOrderItemsByOrderId(long orderId) {
+        List<OrderItem> items = new ArrayList<>();
+        String sql = "SELECT * FROM order_items WHERE order_id = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setLong(1, orderId);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                OrderItem item = new OrderItem();
+                item.setProductId(rs.getLong("product_id"));
+                item.setQuantity(rs.getInt("quantity"));
+                System.out.print(item.toString());
+                items.add(item);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return items;
+    }
 
 }

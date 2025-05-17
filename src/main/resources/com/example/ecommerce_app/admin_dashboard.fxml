@@ -25,6 +25,10 @@
         <Button onAction="#loadDeliveryList" text="Delivery List"
                 style="-fx-background-color: #34495e; -fx-text-fill: white; -fx-font-size: 14px; -fx-pref-width: 120; -fx-background-radius: 8;" />
 
+        <!-- Delivery List Button -->
+        <Button onAction="#onLogOut" text="Logout"
+                style="-fx-background-color: red; -fx-text-fill: white; -fx-font-size: 14px; -fx-pref-width: 120; -fx-background-radius: 8; -fx-font-weight: bold;" />
+
         <!-- Add top padding to the sidebar -->
         <padding>
             <Insets top="100.0" />

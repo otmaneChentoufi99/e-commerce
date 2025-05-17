@@ -22,7 +22,7 @@
           AnchorPane.bottomAnchor="10.0">
 
         <!-- Delivery Table Section -->
-        <VBox spacing="10" prefWidth="750.0">
+        <VBox spacing="10" prefWidth="750.0" style="-fx-padding: 20;">
             <Label text="Delivery List" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
             <TableView fx:id="deliveryTable" prefHeight="500.0">
                 <columns>

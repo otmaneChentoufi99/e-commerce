@@ -25,6 +25,7 @@ public class DeliveryDashboardController {
     @FXML private TableColumn<Order, String> nameColumn;
     @FXML private TableColumn<Order, String> addressColumn;
     @FXML private TableColumn<Order, OrderStatus> statusColumn;
+    @FXML private TableColumn<Order, Double> totalPrice;
     @FXML private TableColumn<Order, Void> actionColumn;
 
     private final OrderDAO orderDAO = new OrderDAO();
@@ -54,6 +55,7 @@ public class DeliveryDashboardController {
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("fullName"));
         addressColumn.setCellValueFactory(new PropertyValueFactory<>("address"));
         statusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
+        totalPrice.setCellValueFactory(new PropertyValueFactory<>("totalPrice"));
 
         actionColumn.setCellFactory(col -> new TableCell<>() {
             private final ComboBox<OrderStatus> statusComboBox = new ComboBox<>();
@@ -83,5 +85,20 @@ public class DeliveryDashboardController {
                 }
             }
         });
+    }
+
+    public void onLogOut() {
+        try {
+            // Load the login view
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/ecommerce_app/login-view.fxml"));
+            Parent root = loader.load();
+
+            // Get the current stage (window) from any UI element
+            Stage stage = (Stage) orderTable.getScene().getWindow(); // Replace 'someNodeInCurrentScene' with any known node
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
