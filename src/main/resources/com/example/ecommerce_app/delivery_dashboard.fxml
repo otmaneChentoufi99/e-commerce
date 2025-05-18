@@ -35,6 +35,7 @@
             <TableColumn fx:id="idColumn" text="Order ID"/>
             <TableColumn fx:id="nameColumn" text="Customer"/>
             <TableColumn fx:id="addressColumn" text="Address"/>
+            <TableColumn fx:id="phoneColumn" text="Phone"/>
             <TableColumn fx:id="totalPrice" text="Total Price"/>
             <TableColumn fx:id="statusColumn" text="Status"/>
             <TableColumn fx:id="actionColumn" text="Change Status"/>

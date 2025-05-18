@@ -24,6 +24,7 @@ public class DeliveryDashboardController {
     @FXML private TableColumn<Order, Long> idColumn;
     @FXML private TableColumn<Order, String> nameColumn;
     @FXML private TableColumn<Order, String> addressColumn;
+    @FXML private TableColumn<Order, String> phoneColumn;
     @FXML private TableColumn<Order, OrderStatus> statusColumn;
     @FXML private TableColumn<Order, Double> totalPrice;
     @FXML private TableColumn<Order, Void> actionColumn;
@@ -54,6 +55,7 @@ public class DeliveryDashboardController {
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("fullName"));
         addressColumn.setCellValueFactory(new PropertyValueFactory<>("address"));
+        phoneColumn.setCellValueFactory(new PropertyValueFactory<>("phone"));
         statusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
         totalPrice.setCellValueFactory(new PropertyValueFactory<>("totalPrice"));
 

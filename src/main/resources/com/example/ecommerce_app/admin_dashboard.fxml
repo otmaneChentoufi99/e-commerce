@@ -36,6 +36,6 @@
     </VBox>
 
     <!-- Main Content -->
-    <StackPane fx:id="contentArea" style="-fx-background-color: #ecf0f1;" HBox.hgrow="ALWAYS"/>
+    <StackPane fx:id="contentArea" HBox.hgrow="ALWAYS"/>
 </HBox>
 

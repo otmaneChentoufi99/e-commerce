@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.scene.chart.PieChart?>
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.NumberAxis?>
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.example.ecommerce_app.controller.DashHome"
+            prefHeight="600.0" prefWidth="800.0"
+            style="-fx-background-color: white;">
+
+    <Label text="Welcome to the Admin Dashboard" layoutX="20" layoutY="20"
+           style="-fx-font-size: 24px; -fx-text-fill: #2c3e50;" />
+
+    <PieChart fx:id="orderPieChart" layoutX="50" layoutY="80" prefHeight="300" prefWidth="400" />
+
+    <BarChart fx:id="salesBarChart" layoutX="480" layoutY="80" prefHeight="300" prefWidth="300"
+              title="Monthly Sales">
+        <xAxis>
+            <CategoryAxis label="Month" />
+        </xAxis>
+        <yAxis>
+            <NumberAxis label="Sales" />
+        </yAxis>
+    </BarChart>
+
+</AnchorPane>
+

@@ -16,8 +16,13 @@ public class DashboardController {
     @FXML
     private StackPane contentArea;
 
+    @FXML
+    public void initialize() {
+        loadUI("/com/example/ecommerce_app/dash-home.fxml"); // Set your default FXML here
+    }
+
     public void loadHome() {
-        loadUI("/com/example/ecommerce_app/home.fxml");
+        loadUI("/com/example/ecommerce_app/dash-home.fxml");
     }
 
     public void loadProducts() {

@@ -7,14 +7,20 @@ import com.example.ecommerce_app.model.OrderStatus;
 import com.example.ecommerce_app.util.DatabaseConnection;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class OrderDAO {
 
 
     public void saveOrder(Order order) throws SQLException {
-        String orderSql = "INSERT INTO orders (full_name, phone, address, comment, payment_method, order_date, status) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        // Calculate total price
+        double totalPrice = 0;
+        for (OrderItem item : order.getItems()) {
+            totalPrice += item.getProductPrice() * item.getQuantity();
+        }
+        order.setTotalPrice(totalPrice);  // Optional: update the order object
+
+        String orderSql = "INSERT INTO orders (full_name, phone, address, comment, payment_method, order_date, status, total_price) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         String itemSql = "INSERT INTO order_items (order_id, product_id, quantity) VALUES (?, ?, ?)";
 
@@ -30,6 +36,7 @@ public class OrderDAO {
             orderStmt.setString(5, order.getPaymentMethod());
             orderStmt.setTimestamp(6, java.sql.Timestamp.valueOf(order.getOrderDate()));
             orderStmt.setString(7, order.getStatus().name());
+            orderStmt.setDouble(8, totalPrice);
             int rowsAffected = orderStmt.executeUpdate();
 
             // Retrieve generated order ID
@@ -40,13 +47,15 @@ public class OrderDAO {
 
                         // Save each item
                         for (OrderItem item : order.getItems()) {
-                            itemStmt.setLong(1, orderId);  // Use the generated order ID here
+                            itemStmt.setLong(1, orderId);
                             itemStmt.setLong(2, item.getProductId());
                             itemStmt.setInt(3, item.getQuantity());
                             itemStmt.addBatch();
                         }
 
-                        itemStmt.executeBatch();  // Insert all items in a batch
+                        itemStmt.executeBatch();
+
+                        // Update product stock
                         String updateStockSql = "UPDATE products SET quantity = quantity - ? WHERE id = ?";
                         try (PreparedStatement updateStockStmt = conn.prepareStatement(updateStockSql)) {
                             for (OrderItem item : order.getItems()) {
@@ -54,7 +63,7 @@ public class OrderDAO {
                                 updateStockStmt.setLong(2, item.getProductId());
                                 updateStockStmt.addBatch();
                             }
-                            updateStockStmt.executeBatch(); // Execute stock updates
+                            updateStockStmt.executeBatch();
                         }
                     } else {
                         throw new SQLException("Failed to retrieve order ID.");
@@ -99,6 +108,7 @@ public class OrderDAO {
                 order.setAddress(rs.getString("address"));
                 order.setComment(rs.getString("comment"));
                 order.setStatus(OrderStatus.valueOf(rs.getString("status")));
+                order.setTotalPrice(rs.getDouble("total_price"));
                 order.setPaymentMethod(rs.getString("payment_method"));
                 order.setOrderDate(rs.getTimestamp("order_date").toLocalDateTime());
 
@@ -113,9 +123,6 @@ public class OrderDAO {
                     order.setDeliveryPerson(dp);
                 }
 
-                // Get order items
-                double totalPrice = 0.0;
-
                 try (PreparedStatement itemsStmt = conn.prepareStatement(itemsSql)) {
                     itemsStmt.setLong(1, orderId);
                     try (ResultSet itemRs = itemsStmt.executeQuery()) {
@@ -125,26 +132,9 @@ public class OrderDAO {
                             item.setProductId(itemRs.getLong("product_id"));
                             item.setQuantity(itemRs.getInt("quantity"));
                             item.setProductName(itemRs.getString("product_name"));
-
-                            // Fetch product price by ID
-                            double productPrice = 0.0;
-                            try (PreparedStatement priceStmt = conn.prepareStatement("SELECT price FROM products WHERE id = ?")) {
-                                priceStmt.setLong(1, item.getProductId());
-                                try (ResultSet priceRs = priceStmt.executeQuery()) {
-                                    if (priceRs.next()) {
-                                        productPrice = priceRs.getDouble("price");
-                                    }
-                                }
-                            }
-
-                            // Set price in item and calculate total
-                            item.setProductPrice(productPrice); // assuming OrderItem has a setProductPrice method
-                            totalPrice += productPrice * item.getQuantity();
-
                             items.add(item);
                         }
                         order.setItems(items);
-                        order.setTotalPrice(totalPrice); // assuming Order has a setTotalPrice method
                     }
                 }
                 orders.add(order);
@@ -210,23 +200,13 @@ public class OrderDAO {
         order.setAddress(rs.getString("address"));
         order.setPaymentMethod(rs.getString("payment_method"));
         order.setComment(rs.getString("comment"));
+        order.setTotalPrice(rs.getDouble("total_price"));
         order.setOrderDate(rs.getTimestamp("order_date").toLocalDateTime());
 
         String statusStr = rs.getString("status");
         if (statusStr != null) {
             order.setStatus(OrderStatus.valueOf(statusStr));
         }
-
-        // Add order items and calculate total price
-        List<OrderItem> items = getOrderItemsByOrderId(order.getId());
-        order.setItems(items);
-
-        double total = 0;
-        for (OrderItem item : items) {
-            total += Math.round((50 + Math.random() * 45) * 10.0) / 10.0 * item.getQuantity();
-        }
-        order.setTotalPrice(total);
-
 
         return order;
     }
@@ -254,6 +234,43 @@ public class OrderDAO {
         }
 
         return items;
+    }
+
+    public Map<String, Integer> getOrderStatusCounts() {
+        Map<String, Integer> result = new HashMap<>();
+        String sql = "SELECT status, COUNT(*) AS count FROM orders GROUP BY status";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                result.put(rs.getString("status"), rs.getInt("count"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
+    public Map<String, Integer> getMonthlySales() {
+        Map<String, Integer> result = new LinkedHashMap<>();
+        String sql = "SELECT MONTH(order_date) AS month, SUM(total_price) AS total FROM orders GROUP BY MONTH(order_date)";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                String month = String.valueOf(rs.getInt("month"));
+                result.put(month, rs.getInt("total"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return result;
     }
 
 }

@@ -16,12 +16,12 @@ fx:controller="com.example.ecommerce_app.controller.OrderListController">
                 <TableColumn fx:id="fullNameColumn" text="Customer Name" />
                 <TableColumn fx:id="addressColumn" text="Address" />
                 <TableColumn fx:id="statusColumn" text="Status" />
+                <TableColumn fx:id="totalPrice" text="Total Price" />
                 <TableColumn fx:id="deliveryPersonColumn" text="Delivery Person" />
                 <TableColumn fx:id="assignColumn" text="Assign" />
                 <TableColumn fx:id="paymentMethodColumn" text="Payment Method" />
                 <TableColumn fx:id="orderDateColumn" text="Order Date" />
                 <TableColumn fx:id="itemsColumn" text="Items Count" />
-                <TableColumn fx:id="totalPrice" text="Total Price" />
             </columns>
         </TableView>
     </center>
